@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" href="https://t4.oseale.com/favicon.png?v=2" type="image/png">
+  <title>Inner.html | t5.oseale.com</title>
+  <style>
+    html.fullscreen-mode, body.fullscreen-mode {
+      cursor: none;
+    }
+    
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      overflow: hidden;
+      background-color: #000; 
+    }
+
+    iframe {
+      border: none;
+      width: 100vw;
+      height: 100vh;
+      display: block;
+    }
+    #debugMenu {
+      display: none;
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
+      padding: 10px;
+      background: #111;
+      color: #0f0;
+      border: 1px solid #0f0;
+      font-family: monospace;
+      z-index: 10000;
+    }
+    
+    .debug-visible #debugMenu {
+      display: block;
+    }
+
+    #slideshowFrame {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 1;
+    }
+
+    #overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 9999;
+      cursor: none;
+      pointer-events: auto;
+      display: none;
+    }
+
+
+    body.hide-cursor {
+      cursor: none;
+    }
+
+    
+
+
+  </style>
+</head>
+<body>
+  <div id="overlay"></div>
+  <iframe
+  id="slideshowFrame"
+  src="https://docs.google.com/presentation/d/e/2PACX-1vQwfM3Ns0fWrfCjer7gYcTTJ_d96j7WlZ0RPTY_t9I_mtR1E-05P3PVy9wnYkuPmPmXWdYOjl8LGlAC/pubembed?start=true&loop=true&delayms=7000&rm=minimal"
+  style="width: 100vw; height: 100vh; border: none; display: block;"
+  allowfullscreen
+></iframe>
+  
+  <script>
+  window.addEventListener('message', (event) => {
+    if (event.data?.fullscreen === true) {
+      document.getElementById('overlay').style.display = 'block';
+    } else {
+      document.getElementById('overlay').style.display = 'none';
+    }
+  });
+
+  </script>
+
+  <script>
+  const CHECK_INTERVAL = 60000;
+    
+  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby8X53IgB9gmaBjnt2wbxtlNiHucPs_ZjOK3LJvrbocxAM4qdRM6dup0JCxP2fmmGgF/exec";
+  
+  
+  function checkStatusAndRefresh() {
+    var xhr = new XMLHttpRequest();
+    xhr.open("GET", SCRIPT_URL, true);
+  
+    xhr.onreadystatechange = function () {
+      if (xhr.readyState === 4) {
+        if (xhr.status === 200) {
+          var responseText = xhr.responseText.trim();
+          var status = Number(responseText);
+  
+          console.log("Received status:", status);
+  
+          if (status === 1) {
+            console.log("Status is 1 — refreshing page.");
+            location.reload();
+          } else {
+            console.log("Status is not 1 — no action taken.");
+          }
+        } else {
+          console.error("Request failed with status:", xhr.status);
+        }
+      }
+    };
+  
+    xhr.onerror = function () {
+      console.error("Network error occurred.");
+    };
+  
+    xhr.send();
+  
+
+
+    };
+  
+  
+  setInterval(checkStatusAndRefresh, CHECK_INTERVAL);
+
+  </script>
+
+  <div id="debugMenu">
+  <p>Next update in: <span id="timeUntilNext">60s</span></p>
+  </div>
+<script>
+  function toggleDebugMenu() {
+    document.body.classList.toggle("debug-visible");
+  }
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "F3") {
+      e.preventDefault();
+      toggleDebugMenu();
+    }
+  });
+</script>
+</body>
+</html>
