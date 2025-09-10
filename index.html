@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Opo infotaulu | t5.oseale.com</title>
+  <link rel="icon" href="https://t4.oseale.com/favicon.png?v=2" type="image/png">
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      overflow: hidden;
+    }
+    #lowerIframe {
+    cursor: none;
+    }
+    iframe {
+      border: none;
+      width: 100vw;
+      height: 100vh;
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 1;
+    }
+    #fullscreenBtn {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      padding: 10px 14px;
+      font-size: 20px;
+      background-color: #000000aa;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      z-index: 9999;
+    }
+    #debugToggleBtn {
+      position: fixed;
+      bottom: 60px;
+      right: 20px;
+      padding: 10px 14px;
+      font-size: 14px;
+      background-color: #000000aa;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      z-index: 9999;
+      display: none;
+    }
+    #linktreeBtn {
+      position: fixed;
+      bottom: 100px;
+      right: 20px;
+      padding: 10px 14px;
+      font-size: 14px;
+      background-color: #000000aa;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      z-index: 9999;
+    }
+  </style>
+</head>
+<body>
+  <iframe id="lowerIframe" src="https://t5.oseale.com/inner.html" allowfullscreen></iframe>
+  
+
+  
+</body>
+<footer>
+  <button id="fullscreenBtn" onclick="goFullscreen()">⛶</button>
+  <button id="debugToggleBtn">🔧</button>
+  <button id="linktreeBtn">✏️</button>
+  <script>
+  function goFullscreen() {
+    const iframe = document.getElementById("lowerIframe");
+    if (iframe.requestFullscreen) {
+      iframe.requestFullscreen();
+    } else if (iframe.webkitRequestFullscreen) {
+      iframe.webkitRequestFullscreen();
+    } else if (iframe.msRequestFullscreen) {
+      iframe.msRequestFullscreen();
+    }
+  }
+
+  document.getElementById("debugToggleBtn").addEventListener("click", () => {
+    const lowerFrame = document.getElementById("lowerIframe");
+    lowerFrame.contentWindow.postMessage({ action: "toggleDebug" }, "*");
+  });
+
+  document.getElementById("linktreeBtn").addEventListener("click", () => {
+    location.href = "https://t4.oseale.com/linktree.html";
+  });
+
+    
+
+  </script>
+  <script>
+  document.addEventListener('fullscreenchange', () => {
+    const isFullscreen = !!document.fullscreenElement;
+    const iframe = document.getElementById('lowerIframe');
+    if (iframe && iframe.contentWindow) {
+      iframe.contentWindow.postMessage({ fullscreen: isFullscreen }, '*');
+    }
+  });
+</script>
+
+</footer>
+</html>
