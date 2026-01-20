@@ -4,153 +4,200 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="icon" href="https://t4.oseale.com/favicon.png?v=2" type="image/png">
-  <title>Inner.html | t5.oseale.com</title>
+  <title>Inner.html | t4.oseale.com</title>
+
   <style>
-    html.fullscreen-mode, body.fullscreen-mode {
-      cursor: none;
-    }
-    
-    html, body {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-      overflow: hidden;
-      background-color: #000; 
-    }
+    html, body { margin:0; padding:0; height:100%; overflow:hidden; background:#000; }
+    iframe { border:none; width:100vw; height:100vh; display:block; }
+    #slideshowFrame { position:fixed; top:0; left:0; width:100vw; height:100vh; z-index:1; }
 
-    iframe {
-      border: none;
-      width: 100vw;
-      height: 100vh;
-      display: block;
-    }
     #debugMenu {
-      display: none;
-      position: fixed;
-      bottom: 20px;
-      left: 20px;
-      padding: 10px;
-      background: #111;
-      color: #0f0;
-      border: 1px solid #0f0;
-      font-family: monospace;
-      z-index: 10000;
+      position:fixed; bottom:20px; left:20px; padding:10px;
+      background:#111; color:#0f0; border:1px solid #0f0;
+      font-family:monospace; z-index:10000; display:none; white-space:pre;
     }
-    
-    .debug-visible #debugMenu {
-      display: block;
-    }
+    .debug-visible #debugMenu { display:block; }
 
-    #slideshowFrame {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      z-index: 1;
+    .ldr {
+      border: 12px solid #2c2c2c;
+      border-top: 12px solid #00bcd4;
+      border-bottom: 12px solid #FFD700;
+      border-radius: 50%;
+      width: 60px; 
+      height: 60px;
+      animation: spin 2s linear infinite;
+      position: absolute;
+      inset: 0;
+      margin: auto;
     }
 
-    #overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      z-index: 9999;
-      cursor: none;
-      pointer-events: auto;
-      display: none;
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
     }
-
-
-    body.hide-cursor {
-      cursor: none;
-    }
-
-    
-
-
   </style>
 </head>
+
 <body>
-  <div id="overlay"></div>
-  <iframe
-  id="slideshowFrame"
-  src="https://docs.google.com/presentation/d/e/2PACX-1vSwVne7xkCrfRHAc9Zd9uPWOc96mnd81zDGQPEfsS053DGKVZ0rY6FtFTSQo9B_h9uIYu3R3Tbsl2u8/pubembed?start=true&loop=true&delayms=7000&rm=minimal"
-  style="width: 100vw; height: 100vh; border: none; display: block;"
-  allowfullscreen
-  ></iframe>
-  
+  <div class="ldr"></div>
+  <iframe id="slideshowFrame" src="" allowfullscreen></iframe>
+  <div id="debugMenu"></div>
   <script>
-  window.addEventListener('message', (event) => {
-    if (event.data?.fullscreen === true) {
-      document.getElementById('overlay').style.display = 'block';
-    } else {
-      document.getElementById('overlay').style.display = 'none';
-    }
-  });
-
-  </script>
-
-  <script>
-  const CHECK_INTERVAL = 60000;
-    
-  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzYhkNPzK7qo3Zlm6AhT06ViN4cjWoF7m36RX4ayVsLJhELncLdEyeq7ntGsh5fEhBM/exec";
-  
-  
-  function checkStatusAndRefresh() {
-    var xhr = new XMLHttpRequest();
-    xhr.open("GET", SCRIPT_URL, true);
-  
-    xhr.onreadystatechange = function () {
-      if (xhr.readyState === 4) {
-        if (xhr.status === 200) {
-          var responseText = xhr.responseText.trim();
-          var status = Number(responseText);
-  
-          console.log("Received status:", status);
-  
-          if (status === 1) {
-            console.log("Status is 1 — refreshing page.");
-            location.reload();
-          } else {
-            console.log("Status is not 1 — no action taken.");
-          }
-        } else {
-          console.error("Request failed with status:", xhr.status);
-        }
+    window.addEventListener("message", function (event) {
+      if (event.data === "toggle-debug") {
+        document.body.classList.toggle("debug-visible");
       }
-    };
-  
-    xhr.onerror = function () {
-      console.error("Network error occurred.");
-    };
-  
-    xhr.send();
-  
-
-
-    };
-  
-  
-  setInterval(checkStatusAndRefresh, CHECK_INTERVAL);
-
+    });
   </script>
+  <script>
+    var CONFIG_URL = "https://script.google.com/macros/s/AKfycbwCyAoDbHcKPxmb2_JPMbNBg7NI6XMauZ4xMsHttp62LHL-cXQgH9Cg3yF6IHOp1Netww/exec";
+    var DEFAULT_ID = "191ZSuOFOl5rWTOnQ_P9aMUqK044ZPdphWjC7gnHRJOI";
+    var DEFAULT_DELAY = 7000;
 
-  <div id="debugMenu">
-  <p>Next update in: <span id="timeUntilNext">60s</span></p>
-  </div>
-<script>
-  function toggleDebugMenu() {
-    document.body.classList.toggle("debug-visible");
-  }
+    var lastConfigTime = "";
+    var currentId = "";
+    var currentDelay = "";
+    var nextRefreshTime = "";
 
-  document.addEventListener("keydown", (e) => {
-    if (e.key === "F3") {
-      e.preventDefault();
-      toggleDebugMenu();
+    var loader = document.querySelector(".ldr");
+    var iframe = document.getElementById("slideshowFrame");
+
+    loader.style.display = "block";
+    iframe.style.display = "none";
+
+    var loadCount = 0;
+    var minDelay = 400;
+    var maxDelay = 7000;
+    
+    var maxTimeout = setTimeout(function () {
+      loader.style.display = "none";
+      iframe.style.display = "block";
+    }, maxDelay);
+    
+    iframe.addEventListener("load", function () {
+      loadCount++;
+    
+      if (loadCount === 1) {
+        return;
+      }
+    
+      clearTimeout(maxTimeout); 
+    
+      setTimeout(function () {
+        loader.style.display = "none";
+        iframe.style.display = "block";
+      }, minDelay);
+    });
+
+    function loadInitialConfig() {
+      var xhr = new XMLHttpRequest();
+      xhr.open("GET", CONFIG_URL, true);
+
+      xhr.onreadystatechange = function () {
+        if (xhr.readyState === 4) {
+          var cfg;
+          if (xhr.status === 200) {
+            try { cfg = JSON.parse(xhr.responseText); }
+            catch (e) { cfg = {}; }
+          } else {
+            cfg = {};
+          }
+          applyInitialConfig(cfg);
+        }
+      };
+
+      xhr.send();
     }
+
+    function applyInitialConfig(cfg) {
+      var id = cfg.slideshowId || DEFAULT_ID;
+      var delay = cfg.slideDelay || DEFAULT_DELAY;
+
+      currentId = id;
+      currentDelay = delay;
+      lastConfigTime = new Date().toLocaleTimeString();
+
+      var url = "https://docs.google.com/presentation/d/" +
+        id +
+        "/embed?start=true&loop=true&delayms=" +
+        delay +
+        "&rm=minimal" +
+        "&cb=" + Date.now();
+
+      iframe.src = url;
+    }
+
+    function checkRefreshFlag() {
+      var xhr = new XMLHttpRequest();
+      xhr.open("GET", CONFIG_URL, true);
+
+      xhr.onreadystatechange = function () {
+        if (xhr.readyState === 4 && xhr.status === 200) {
+          var cfg;
+          try { cfg = JSON.parse(xhr.responseText); }
+          catch (e) { cfg = {}; }
+
+          if (cfg.refreshAll === 1) {
+            location.reload(true);
+          }
+        }
+      };
+
+      xhr.send();
+    }
+
+    function scheduleNextMinute() {
+      var now = new Date();
+      var ms = (60 - now.getSeconds()) * 1000 - now.getMilliseconds();
+      var next = new Date(now.getTime() + ms);
+      nextRefreshTime = next.toLocaleTimeString();
+
+      setTimeout(function () {
+        checkRefreshFlag();
+        scheduleNextMinute();
+      }, ms);
+    }
+
+var uaString = navigator.userAgent || "N/A";
+var uaDataString = "Not supported";
+
+if (navigator.userAgentData && navigator.userAgentData.getHighEntropyValues) {
+  navigator.userAgentData.getHighEntropyValues([
+    "platform",
+    "platformVersion",
+    "architecture",
+    "model",
+    "uaFullVersion"
+  ]).then(data => {
+    uaDataString = JSON.stringify(data, null, 2);
   });
-</script>
+}
+
+    function updateDebug() {
+  var box = document.getElementById("debugMenu");
+  var now = new Date().toLocaleTimeString();
+
+  box.textContent =
+    "Time: " + now +
+    "\nNext refresh: " + nextRefreshTime +
+    "\nLast config load: " + lastConfigTime +
+    "\nID: " + currentId +
+    "\nDelay: " + currentDelay +
+    "\n\n--- Browser Info ---" +
+    "\nuserAgent:\n" + uaString +
+    "\n\nuserAgentData:\n" + uaDataString;
+}
+
+    setInterval(updateDebug, 500);1j_5Ysnh6elEar5Wb9QD7-GQrmMvfXW6suqZzmmmtTHM
+
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "F3") {
+        document.body.classList.toggle("debug-visible");
+      }
+    });
+
+    loadInitialConfig();
+    scheduleNextMinute();
+  </script>
 </body>
 </html>
