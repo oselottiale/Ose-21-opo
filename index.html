@@ -38,7 +38,7 @@
     }
     #debugToggleBtn {
       position: fixed;
-      bottom: 60px;
+      bottom: 80px;
       right: 20px;
       padding: 10px 14px;
       font-size: 14px;
@@ -48,11 +48,10 @@
       border-radius: 6px;
       cursor: pointer;
       z-index: 9999;
-      display: none;
     }
     #linktreeBtn {
       position: fixed;
-      bottom: 100px;
+      bottom: 140px;
       right: 20px;
       padding: 10px 14px;
       font-size: 14px;
@@ -78,10 +77,11 @@
       font-family: Arial, Helvetica, sans-serif;
       display: none;
     }
+
   </style>
 </head>
 <body>
-  <div id="topAlert">
+  <div id="topAlert"> Ladataan...
     <button onclick="document.getElementById('topAlert').style.display='none'" style="margin-left:10px;">✖</button>
   </div>
   <iframe id="lowerIframe" src="https://t5.oseale.com/inner.html" allowfullscreen></iframe>
@@ -90,9 +90,17 @@
   
 </body>
 <footer>
-  <button id="fullscreenBtn" onclick="goFullscreen()">⛶</button>
-  <button id="debugToggleBtn">🔧</button>
-  <button id="linktreeBtn">✏️</button>
+  <button id="fullscreenBtn" onclick="goFullscreen()" style="width:45px;height:45px;">⛶</button>
+  <button id="debugToggleBtn" style="width:45px;height:45px;">🔧</button>
+  <button id="linktreeBtn" style="width:45px;height:45px;">✏️</button>
+  <script>
+  document.getElementById("debugToggleBtn").onclick = function () {
+    var frame = document.getElementById("lowerIframe");
+    frame.contentWindow.postMessage("toggle-debug", "*");
+  };
+  </script>
+  
+
   <script>
   async function loadAlert() {
     try {
